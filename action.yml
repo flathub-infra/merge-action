@@ -1,0 +1,11 @@
+name: "Flathub merge action"
+description: "Flathub merge action to merge submission pull requests"
+author: "Flathub contributors"
+inputs:
+  token:
+    description: 'The token that the action will use.'
+    default: ${{ github.token }}
+    required: true
+runs:
+  using: 'docker'
+  image: "docker://ghcr.io/flathub-infra/merge:latest"
