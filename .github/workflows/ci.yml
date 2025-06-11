@@ -7,12 +7,14 @@ on:
       - '.gitignore'
       - 'LICENSE'
       - 'README.md'
+      - 'action.yml'
   pull_request:
     branches: main
     paths-ignore:
       - '.gitignore'
       - 'LICENSE'
       - 'README.md'
+      - 'action.yml'
   workflow_dispatch:
   schedule:
     - cron: '0 0 * * 1,5'
