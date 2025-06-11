@@ -17,10 +17,6 @@ on:
     types:
       - created
 
-concurrency:
-  group: merge-${{ github.event.issue.number }}
-  cancel-in-progress: true
-
 jobs:
   merge:
     runs-on: ubuntu-latest
@@ -33,7 +29,7 @@ jobs:
 ```
 
 The token `MY_TOKEN` must have the capabilities to create a repository
-in the Flathub organisation; edit and push to repositores; add and
+in the Flathub organisation; edit and push to repositories; add and
 modify repository colloborators and set branch protections.
 
 Commenting on a PR with the `/merge` command will trigger the action.
