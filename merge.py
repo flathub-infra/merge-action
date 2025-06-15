@@ -66,8 +66,11 @@ def _read_flatpak_manifest(path: str) -> dict[str, Any]:
 
 
 def _get_id_from_flatpak_manifest(path: str) -> str | None:
+    appid = None
+
     manifest = _read_flatpak_manifest(path)
-    appid = manifest.get("app-id") or manifest.get("id")
+    if isinstance(manifest, dict):
+        appid = manifest.get("app-id") or manifest.get("id")
 
     if not appid:
         logging.error("Manifest %s does not contain 'app-id' or 'id'", path)
