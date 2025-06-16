@@ -434,6 +434,16 @@ def finalize_new_flathub_repo(
     return True
 
 
+def get_issue_from_pr(
+    pr_obj: github.PullRequest.PullRequest,
+) -> None | github.Issue.Issue:
+    try:
+        return pr_obj.base.repo.get_issue(number=pr_obj.number)
+    except github.GithubException as err:
+        logging.error("Failed to get issue from PR #%d: %s", pr_obj.number, err)
+        return None
+
+
 def close_pr(
     pr_obj: github.PullRequest.PullRequest,
     created_repo_obj: github.Repository.Repository,
@@ -464,6 +474,9 @@ def close_pr(
         pr_obj.add_to_labels("ready")
         pr_obj.create_issue_comment(close_comment)
         pr_obj.edit(state="closed")
+        issue_obj = get_issue_from_pr(pr_obj)
+        if issue_obj and not issue_obj.locked:
+            issue_obj.lock("resolved")
         return True
     except github.GithubException as err:
         logging.error("Unexpected error from GitHub while closing PR: %s", err)
