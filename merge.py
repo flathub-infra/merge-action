@@ -215,7 +215,7 @@ def create_new_flathub_repo(
         return repo
     except github.GithubException as err:
         logging.error(
-            "Failed to create or edit GitHun repository %s: %s", repo_name, err
+            "Failed to create or edit GitHub repository %s: %s", repo_name, err
         )
         return None
 
