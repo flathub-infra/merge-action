@@ -30,7 +30,7 @@ logging.getLogger("gql").setLevel(logging.WARNING)
 def _read_json_flatpak_manifest(path: str) -> dict[str, Any]:
     manifest: dict[str, Any] = {}
 
-    if os.path.isfile(path) and path.endswith(".json"):
+    if os.path.isfile(path) and os.path.basename(path).endswith(".json"):
         parser = Json.Parser()
         try:
             parser.load_from_file(path)
@@ -44,7 +44,7 @@ def _read_json_flatpak_manifest(path: str) -> dict[str, Any]:
 def _read_yaml_flatpak_manifest(path: str) -> dict[str, Any]:
     manifest: dict[str, Any] = {}
 
-    if os.path.isfile(path) and path.endswith((".yml", ".yaml")):
+    if os.path.isfile(path) and os.path.basename(path).endswith((".yml", ".yaml")):
         try:
             with open(path) as f:
                 manifest = yaml.safe_load(f)
@@ -57,7 +57,7 @@ def _read_yaml_flatpak_manifest(path: str) -> dict[str, Any]:
 def _read_flatpak_manifest(path: str) -> dict[str, Any]:
     manifest: dict[str, Any] = {}
 
-    if path.endswith((".yaml", ".yml")):
+    if os.path.basename(path).endswith((".yaml", ".yml")):
         manifest = _read_yaml_flatpak_manifest(path)
     else:
         manifest = _read_json_flatpak_manifest(path)
