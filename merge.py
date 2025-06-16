@@ -461,6 +461,7 @@ def close_pr(
 
     try:
         logging.info("Closing the pull request")
+        pr_obj.add_to_labels("ready")
         pr_obj.create_issue_comment(close_comment)
         pr_obj.edit(state="closed")
         return True
