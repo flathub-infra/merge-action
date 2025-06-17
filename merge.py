@@ -470,12 +470,14 @@ def close_pr(
     )
 
     try:
-        logging.info("Closing the pull request")
+        logging.info("Setting the 'ready' label")
         pr_obj.set_labels("ready")
+        logging.info("Closing the pull request")
         pr_obj.create_issue_comment(close_comment)
         pr_obj.edit(state="closed")
         issue_obj = get_issue_from_pr(pr_obj)
         if issue_obj and not issue_obj.locked:
+            logging.info("Locking the pull request")
             issue_obj.lock("resolved")
         return True
     except github.GithubException as err:
