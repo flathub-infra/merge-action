@@ -212,6 +212,7 @@ def create_new_flathub_repo(
             homepage=f"https://flathub.org/apps/details/{repo_name}",
             delete_branch_on_merge=True,
         )
+        logging.info("Created repository: %s", repo.html_url)
         return repo
     except github.GithubException as err:
         logging.error(
