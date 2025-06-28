@@ -8,4 +8,4 @@ inputs:
     required: true
 runs:
   using: 'docker'
-  image: "docker://ghcr.io/flathub-infra/merge:latest"
+  image: "docker://ghcr.io/flathub-infra/merge:latest@sha256:8d0b05b329121ef64a2eddb2652b18020c832ead04cedf343333290c38e88a72"
