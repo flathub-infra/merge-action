@@ -444,6 +444,23 @@ def get_issue_from_pr(
         return None
 
 
+def set_ready_label(pr_obj: github.PullRequest.PullRequest) -> bool:
+    check_label = "migrate-app-id"
+    ready_label = "ready"
+
+    try:
+        pr_labels = [label.name for label in pr_obj.get_labels()]
+        logging.info("Checking and applying 'ready' label to PR #%s", pr_obj.number)
+        if check_label in pr_labels:
+            pr_obj.add_to_labels(ready_label)
+            return True
+        pr_obj.set_labels(ready_label)
+        return True
+    except github.GithubException as err:
+        logging.error("Unexpected error from GitHub while setting labels: %s", err)
+        return False
+
+
 def close_pr(
     pr_obj: github.PullRequest.PullRequest,
     created_repo_obj: github.Repository.Repository,
@@ -470,8 +487,8 @@ def close_pr(
     )
 
     try:
-        logging.info("Setting the 'ready' label")
-        pr_obj.set_labels("ready")
+        if not set_ready_label(pr_obj):
+            return False
         logging.info("Closing the pull request")
         pr_obj.create_issue_comment(close_comment)
         pr_obj.edit(state="closed")
