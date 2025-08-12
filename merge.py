@@ -311,20 +311,33 @@ def add_all_collaborators(
     ):
         teams_to_add.append("GNOME")
 
-    try:
-        for user in collaborators:
-            logging.info("Adding user %s to collaborators", user)
+    collaborators = [user for user in collaborators if not user.startswith("flathub/")]
+    teams_to_add.extend(
+        user.split("/", 1)[1] for user in collaborators if user.startswith("flathub/")
+    )
+
+    for user in collaborators:
+        logging.info("Adding user %s to collaborators", user)
+        try:
             created_repo_obj.add_to_collaborators(user, permission="push")
+        except github.UnknownObjectException as err:
+            logging.error("Failed to set '%s' as collaborator: %s", user, err)
+            return False
 
-        for team in teams_to_add:
-            logging.info("Adding team %s to collaborators", team)
-            team_slug = org.get_team_by_slug(team)
+    for team in teams_to_add:
+        logging.info("Adding team %s to collaborators", team)
+        team_slug = org.get_team_by_slug(team)
+        try:
             team_slug.update_team_repository(created_repo_obj, "push")
+        except github.UnknownObjectException as err:
+            logging.error(
+                "Failed to set team '%s' as collaborator to GitHub repository: %s",
+                team,
+                err,
+            )
+            return False
 
-        return True
-    except github.GithubException as err:
-        logging.error("Failed to set collaborators to GitHub repository: %s", err)
-        return False
+    return True
 
 
 def is_valid_event(event: dict[str, Any]) -> bool:
