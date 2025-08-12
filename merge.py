@@ -174,6 +174,10 @@ def parse_merge_command(
         m[1:] for m in re.findall(r"@(?!flathub/)[a-zA-Z0-9-]{1,39}", rest_comment)
     ]
 
+    additional_colbs.extend(
+        [m[1:] for m in re.findall(r"@flathub/[a-zA-Z0-9-]{1,39}", rest_comment)]
+    )
+
     logging.info("Got additional collaborators %s from comment", additional_colbs)
 
     return target_repo_default_branch, pr_head_sha, additional_colbs
