@@ -170,7 +170,9 @@ def parse_merge_command(
     # > If the username is longer than 39 characters
     # > (including underscore and short code),
     # > the provisioning attempt will fail with a 400 error.
-    additional_colbs = [m[1:] for m in re.findall(r"@[a-zA-Z0-9-]{1,39}", rest_comment)]
+    additional_colbs = [
+        m[1:] for m in re.findall(r"@(?!flathub/)[a-zA-Z0-9-]{1,39}", rest_comment)
+    ]
 
     logging.info("Got additional collaborators %s from comment", additional_colbs)
 
