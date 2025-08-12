@@ -15,6 +15,14 @@ import github
 import pygit2
 import yaml
 from gql import Client, gql
+from gql.transport.exceptions import (
+    TransportAlreadyConnected,
+    TransportClosed,
+    TransportError,
+    TransportProtocolError,
+    TransportQueryError,
+    TransportServerError,
+)
 from gql.transport.requests import RequestsHTTPTransport
 
 gi.require_version("Json", "1.0")
@@ -248,7 +256,7 @@ def push_to_flathub_remote(
         return False
 
 
-def set_protected_branch(token: str, repo: str, branch: str) -> dict[str, Any]:
+def set_protected_branch(token: str, repo: str, branch: str) -> bool:
     transport = RequestsHTTPTransport(
         url="https://api.github.com/graphql",
         headers={"Authorization": f"Bearer {token}"},
@@ -293,13 +301,30 @@ def set_protected_branch(token: str, repo: str, branch: str) -> dict[str, Any]:
         """
     )
 
-    repo_id = client.execute(gql_get_repo_id, variable_values={"repo": repo})
-    repo_id = repo_id["repository"]["id"]
-
-    return client.execute(
-        gql_add_branch_protection,
-        variable_values={"repositoryID": repo_id, "pattern": branch},
+    gql_exceptions = (
+        TransportQueryError,
+        TransportServerError,
+        TransportProtocolError,
+        TransportError,
+        TransportClosed,
+        TransportAlreadyConnected,
     )
+
+    try:
+        repo_data = client.execute(gql_get_repo_id, variable_values={"repo": repo})
+        repo_id = repo_data["repository"]["id"]
+        client.execute(
+            gql_add_branch_protection,
+            variable_values={"repositoryID": repo_id, "pattern": branch},
+        )
+        return True
+    except gql_exceptions as err:
+        logging.error(
+            "GraphQL exception while trying to set protected branches: %s",
+            err,
+            exc_info=True,
+        )
+        return False
 
 
 def add_all_collaborators(
@@ -434,7 +459,8 @@ def finalize_new_flathub_repo(
 
     logging.info("Setting protected branches")
     for branch in ("master", "main", "stable", "branch/*", "beta", "beta/*"):
-        set_protected_branch(github_token, repo_name, branch)
+        if not set_protected_branch(github_token, repo_name, branch):
+            return False
 
     remote_branch_obj = remote_repo_obj.get_branch(target_remote_branch)
     remote_head_sha = str(remote_branch_obj.commit.sha)
