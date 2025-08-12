@@ -317,10 +317,10 @@ def add_all_collaborators(
     ):
         teams_to_add.append("GNOME")
 
-    collaborators = [user for user in collaborators if not user.startswith("flathub/")]
     teams_to_add.extend(
         user.split("/", 1)[1] for user in collaborators if user.startswith("flathub/")
     )
+    collaborators = [user for user in collaborators if not user.startswith("flathub/")]
 
     for user in collaborators:
         logging.info("Adding user %s to collaborators", user)
