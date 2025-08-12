@@ -1,6 +1,6 @@
 [project]
 name = "flathub_merge_action"
-version = "1.0.8"
+version = "1.0.9"
 description = "Flathub merge action"
 authors = [
   {name = "Bartłomiej Piotrowski", email = "b@bpiotrowski.pl"},
