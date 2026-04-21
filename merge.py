@@ -414,8 +414,7 @@ def clone_pr_fork(
         fork_url, clone_path, checkout_branch=pr_branch
     )
     clone_head_sha = str(clone.head.target)
-    # https://github.com/libgit2/pygit2/issues/1322
-    clone.submodules.update(init=True)  # type: ignore[attr-defined]
+    clone.submodules.update(init=True)
 
     pr_tmp = parent_repo_obj.get_pull(pr_id)
     if pr_tmp.state != "open":
@@ -445,8 +444,7 @@ def finalize_new_flathub_repo(
     clone_path: str,
 ) -> bool:
     logging.info("Adding Flathub remote")
-    # https://github.com/libgit2/pygit2/issues/1322
-    cloned_repo_obj.remotes.create(  # type: ignore[attr-defined]
+    cloned_repo_obj.remotes.create(
         "flathub",
         f"https://x-access-token:{github_token}@github.com/flathub/{repo_name}",
     )
