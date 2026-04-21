@@ -633,6 +633,13 @@ def main() -> int:
     pr_branch = pr.head.label.split(":")[1]
     fork_url = pr.head.repo.clone_url
     pr_author = pr.user.login
+    pr_labels = get_pr_labels(pr)
+
+    if pr_labels is None:
+        return 1
+    if pr_labels and any("block" in label for label in pr_labels):
+        logging.error("PR has some blocking labels: %s", pr_labels)
+        return 1
 
     additional_colbs.append(pr_author)
 
