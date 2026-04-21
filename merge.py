@@ -490,17 +490,28 @@ def get_issue_from_pr(
         return None
 
 
+def get_pr_labels(pr_obj: github.PullRequest.PullRequest) -> list[str] | None:
+    try:
+        labels = [label.name for label in pr_obj.get_labels()]
+        if not labels:
+            logging.info("No PR labels found on PR #%s", pr_obj.number)
+        return labels
+    except github.GithubException as err:
+        logging.error("Unexpected error from GitHub while fetching labels: %s", err)
+        return None
+
+
 def set_ready_label(pr_obj: github.PullRequest.PullRequest) -> bool:
     check_label = "migrate-app-id"
     ready_label = "ready"
 
     try:
-        pr_labels = [label.name for label in pr_obj.get_labels()]
+        pr_labels = get_pr_labels(pr_obj)
         logging.info("Checking and applying 'ready' label to PR #%s", pr_obj.number)
-        if check_label in pr_labels:
+        if pr_labels and check_label not in pr_labels:
+            pr_obj.set_labels(ready_label)
+        else:
             pr_obj.add_to_labels(ready_label)
-            return True
-        pr_obj.set_labels(ready_label)
         return True
     except github.GithubException as err:
         logging.error("Unexpected error from GitHub while setting labels: %s", err)
