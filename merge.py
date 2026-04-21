@@ -507,6 +507,44 @@ def set_ready_label(pr_obj: github.PullRequest.PullRequest) -> bool:
         return False
 
 
+def clear_pr_metadata(
+    pr_obj: github.PullRequest.PullRequest,
+) -> bool:
+    ret = True
+    assignees = list(pr_obj.assignees)
+    user_reviewers = [u.login for u in pr_obj.requested_reviewers]
+    team_reviewers = [t.slug for t in pr_obj.requested_teams]
+
+    if assignees:
+        try:
+            logging.info("Removing assignees: %s", [u.login for u in assignees])
+            pr_obj.remove_from_assignees(*assignees)
+        except github.GithubException as err:
+            logging.error(
+                "Unexpected error from GitHub while removing assignees: %s", err
+            )
+            ret = False
+
+    if user_reviewers or team_reviewers:
+        logging.info(
+            "Removing review requests: users=%s teams=%s",
+            user_reviewers,
+            team_reviewers,
+        )
+        try:
+            pr_obj.delete_review_request(
+                reviewers=user_reviewers,
+                team_reviewers=team_reviewers,
+            )
+        except github.GithubException as err:
+            logging.error(
+                "Unexpected error from GitHub while removing review requests: %s", err
+            )
+            ret = False
+
+    return ret
+
+
 def close_pr(
     pr_obj: github.PullRequest.PullRequest,
     created_repo_obj: github.Repository.Repository,
@@ -533,6 +571,8 @@ def close_pr(
     )
 
     try:
+        if not clear_pr_metadata(pr_obj):
+            return False
         if not set_ready_label(pr_obj):
             return False
         logging.info("Closing the pull request")
