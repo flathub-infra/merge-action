@@ -11,7 +11,7 @@ readme = "README.md"
 requires-python = "<4.0,>=3.10"
 dependencies = [
     "PyGithub<3.0.0,>=2.6.1",
-    "PyGObject<4.0.0,>=3.48.2",
+    "PyGObject==3.48.2",
     "pygit2<2.0.0,>=1.15.0",
     "gql[requests]>=3.5.0,<4.0",
     "PyYAML<7.0.0,>=6.0.1",
